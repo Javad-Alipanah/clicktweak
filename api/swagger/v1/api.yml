@@ -1,0 +1,15 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: ClickTweak
+  description: This is the documentation for ClickTweak API
+servers:
+  - url: c.t/v1
+paths:
+  /:
+    get:
+      summary: Simple Hello World page
+      operationId: getHelloWorld
+      responses:
+          200:
+            description: OK
