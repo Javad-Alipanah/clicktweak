@@ -1,0 +1,88 @@
+stages:
+  - check
+  - build
+  - test
+  - deploy
+  - docs
+
+variables:
+  GOLANG_VERSION: "1.14.2"
+  OS: "buster"
+
+check:
+  image: golang:${GOLANG_VERSION}-${OS}
+  stage: check
+  before_script:
+    - export GOPATH="$CI_PROJECT_DIR/.cache"
+  script:
+    - make check
+  cache:
+    paths:
+      - .cache
+  except:
+    - tags
+    - master
+
+test:unit:
+  image: golang:${GOLANG_VERSION}-${OS}
+  stage: test
+  script:
+    - export GOPATH="$CI_PROJECT_DIR/.cache"
+    - make test
+  cache:
+    paths:
+      - .cache
+  except:
+    - tags
+
+build:
+  image: golang:${GOLANG_VERSION}-${OS}
+  stage: build
+  script:
+    - export GOPATH="$CI_PROJECT_DIR/.cache"
+    - make clean
+    - make static
+  artifacts:
+    paths:
+      - ./bin/clicktweak_static
+    expire_in: 1 day
+  cache:
+    paths:
+      - .cache
+
+deploy:
+  image: docker:latest
+  stage: deploy
+  dependencies:
+    - build
+  before_script:
+    - apk update
+    - apk add ca-certificates
+    - cp /etc/ssl/certs/ca-certificates.crt .
+  script:
+    - docker login reg.alipanah.me -u ${REPO_USR} -p ${REPO_PWD}
+    - docker build -t reg.alipanah.me/clicktweak:${CI_COMMIT_REF_NAME} -f ./build/package/clicktweak.Dockerfile .
+    - docker push reg.alipanah.me/clicktweak:${CI_COMMIT_REF_NAME}
+  only:
+    - tags
+
+pages:
+  image: node:alpine
+  stage: docs
+  variables:
+    DOCS_FOLDER: "api/swagger/v1"
+  cache:
+    paths:
+      - ./node_modules
+  script:
+    - npm install swagger-ui-dist
+    - mkdir public
+    - cp -rp node_modules/swagger-ui-dist/* public
+    - rm -f public/package.json public/index.js public/absolute-path.js public/README.md
+    - cp ${DOCS_FOLDER}/* public
+    - sed -i "s#https://petstore\.swagger\.io/v2/swagger\.json#$(ls -t ${DOCS_FOLDER} | head -n1)#g" public/index.html
+  artifacts:
+    paths:
+      - ./public
+  only:
+    - tags
