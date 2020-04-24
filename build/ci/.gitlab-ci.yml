@@ -21,7 +21,6 @@ check:
       - .cache
   except:
     - tags
-    - master
 
 test:unit:
   image: golang:${GOLANG_VERSION}-${OS}
