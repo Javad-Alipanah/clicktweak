@@ -22,3 +22,9 @@
 
 # Goland Project files
 .idea/
+
+# Coverage files
+.coverage*
+
+# Binaries
+bin/
