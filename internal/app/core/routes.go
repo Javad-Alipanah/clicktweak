@@ -15,6 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Login receives user credentials and if correct responds with fresh jwt token
 func Login(user db.User, secret string) echo.HandlerFunc {
 	return func(context echo.Context) (err error) {
 		u := new(model.User)
@@ -52,8 +53,11 @@ func Login(user db.User, secret string) echo.HandlerFunc {
 		}
 
 		// check password
-		password, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(u.Password))
 		if err != nil {
+			if err == bcrypt.ErrMismatchedHashAndPassword {
+				return context.JSON(http.StatusUnauthorized, exception.ToJSON(exception.InvalidCredentials))
+			}
 			log.Error(err)
 			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
 		}
