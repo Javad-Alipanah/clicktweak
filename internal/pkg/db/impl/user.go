@@ -7,7 +7,6 @@ import (
 	"clicktweak/internal/pkg/model"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -54,14 +53,6 @@ func (u *User) GetByUserName(userName string) (*model.User, error) {
 }
 
 func (u *User) Save(user *model.User) error {
-	// generate password hash
-	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Error(err)
-		return exception.InternalServerError
-	}
-	user.Password = string(password)
-
 	// begin transaction
 	tx := u.db.Begin()
 	if err := tx.Error; err != nil {
@@ -70,13 +61,14 @@ func (u *User) Save(user *model.User) error {
 	}
 	// check if user exists
 	temp := new(model.User)
-	err = tx.Table(usersTable).Where(fmt.Sprintf("%s = ? OR %s = ?", userNameCol, emailCol), user.UserName, user.Email).First(temp).Error
-	if err != nil {
+	err := tx.Table(usersTable).Where(fmt.Sprintf("%s = ? OR %s = ?", userNameCol, emailCol), user.UserName, user.Email).First(temp).Error
+	if err == nil {
 		tx.Rollback()
-		if gorm.IsRecordNotFoundError(err) {
-			return exception.UserAlreadyExists
-		}
+		return exception.UserAlreadyExists
+	}
+	if !gorm.IsRecordNotFoundError(err) {
 		log.Errorln(err)
+		tx.Rollback()
 		return exception.InternalServerError
 	}
 
