@@ -61,25 +61,66 @@ func Login(user db.User, secret string) echo.HandlerFunc {
 			log.Error(err)
 			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
 		}
-		if string(password) != result.Password {
-			return context.JSON(http.StatusUnauthorized, exception.ToJSON(exception.InvalidCredentials))
-		}
 
-		// generate JWT
-		token := jwt.New(jwt.SigningMethodHS256)
-		claims := token.Claims.(jwt.MapClaims)
-		claims["id"] = result.ID
-		claims["exp"] = time.Now().Add(time.Hour * 24)
-
-		// generate encoded token and send to client
-		et, err := token.SignedString([]byte(secret))
+		et, err := generateToken(result, secret)
 		if err != nil {
-			log.Errorln(err)
-			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
+			return context.JSON(http.StatusInternalServerError, exception.ToJSON(err))
 		}
 
 		return context.JSON(http.StatusOK, map[string]string{
 			"token": et,
 		})
 	}
+}
+
+func SingUp(user db.User, secret string) echo.HandlerFunc {
+	return func(context echo.Context) (err error) {
+		u := new(model.User)
+		if err = context.Bind(u); err != nil {
+			log.Error(err)
+			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
+		}
+
+		if err = u.Validate(); err != nil {
+			return context.JSON(http.StatusBadRequest, exception.ToJSON(err))
+		}
+
+		// generate password hash
+		password, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Error(err)
+			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
+		}
+		u.Password = string(password)
+
+		if err = user.Save(u); err != nil {
+			var status int
+			if err == exception.InternalServerError {
+				status = http.StatusInternalServerError
+			} else if err == exception.UserAlreadyExists {
+				status = http.StatusConflict
+			}
+			return context.JSON(status, exception.ToJSON(err))
+		}
+
+		et, err := generateToken(u, secret)
+		if err != nil {
+			return context.JSON(http.StatusInternalServerError, exception.ToJSON(err))
+		}
+
+		return context.JSON(http.StatusOK, map[string]string{
+			"token": et,
+		})
+	}
+}
+
+func generateToken(u *model.User, secret string) (string, error) {
+	// generate JWT
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["user_name"] = u.UserName
+	claims["exp"] = time.Now().Add(time.Hour * 24)
+
+	// generate encoded token and send to client
+	return token.SignedString([]byte(secret))
 }
