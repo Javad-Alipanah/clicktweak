@@ -20,8 +20,7 @@ func Login(user db.User, secret string) echo.HandlerFunc {
 	return func(context echo.Context) (err error) {
 		u := new(model.User)
 		if err = context.Bind(u); err != nil {
-			log.Error(err)
-			return context.JSON(http.StatusInternalServerError, exception.ToJSON(exception.InternalServerError))
+			return context.JSON(http.StatusBadRequest, exception.ToJSON(exception.MalformedRequest))
 		}
 
 		// only provide one of email or user_name fields
