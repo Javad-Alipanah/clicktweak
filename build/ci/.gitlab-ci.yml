@@ -43,7 +43,7 @@ build:
     - make static
   artifacts:
     paths:
-      - ./bin/clicktweak_static
+      - ./bin/core_static
     expire_in: 1 day
   cache:
     paths:
@@ -60,8 +60,8 @@ deploy:
     - cp /etc/ssl/certs/ca-certificates.crt .
   script:
     - docker login reg.alipanah.me -u ${REPO_USR} -p ${REPO_PWD}
-    - docker build -t reg.alipanah.me/clicktweak:${CI_COMMIT_REF_NAME} -f ./build/package/clicktweak.Dockerfile .
-    - docker push reg.alipanah.me/clicktweak:${CI_COMMIT_REF_NAME}
+    - docker build -t reg.alipanah.me/core:${CI_COMMIT_REF_NAME} -f ./build/package/core.Dockerfile .
+    - docker push reg.alipanah.me/core:${CI_COMMIT_REF_NAME}
   only:
     - tags
 

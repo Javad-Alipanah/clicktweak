@@ -1,10 +1,10 @@
-APP=bin/clicktweak
-STATIC_APP=bin/clicktweak_static
+CORE=bin/core
+STATIC_CORE=bin/core_static
 SOURCES=$(shell find . -name '*.go' -not -name '*_test.go')
 
-all: $(APP)
+all: $(CORE)
 
-static: $(STATIC_APP)
+static: $(STATIC_CORE)
 
 format:
 	find . -name '*.go' -not -path "./.cache/*" | xargs -n1 go fmt
