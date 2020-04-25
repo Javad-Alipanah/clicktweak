@@ -72,7 +72,11 @@ func Login(user db.User, secret string) echo.HandlerFunc {
 	}
 }
 
-func SingUp(user db.User, secret string) echo.HandlerFunc {
+// SingUp receives user info, validates and if correct adds user to database
+//
+// if user already exists, returns http status 409 (conflict)
+// on success returns a fresh token to user
+func SignUp(user db.User, secret string) echo.HandlerFunc {
 	return func(context echo.Context) (err error) {
 		u := new(model.User)
 		if err = context.Bind(u); err != nil {
@@ -107,7 +111,7 @@ func SingUp(user db.User, secret string) echo.HandlerFunc {
 			return context.JSON(http.StatusInternalServerError, exception.ToJSON(err))
 		}
 
-		return context.JSON(http.StatusOK, map[string]string{
+		return context.JSON(http.StatusCreated, map[string]string{
 			"token": et,
 		})
 	}
