@@ -1,7 +1,9 @@
 package core
 
 import (
+	"clicktweak/internal/pkg/util"
 	"errors"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -113,6 +115,52 @@ func SignUp(user db.User, secret string) echo.HandlerFunc {
 
 		return context.JSON(http.StatusCreated, map[string]string{
 			"token": et,
+		})
+	}
+}
+
+// Shorten returns the shortened representation of given url
+func Shorten(url db.Url) echo.HandlerFunc {
+	return func(context echo.Context) error {
+		u := new(model.Url)
+		if err := context.Bind(u); err != nil {
+			return context.JSON(http.StatusBadRequest, exception.ToJSON(exception.MalformedRequest))
+		}
+
+		user := context.Get("user").(*jwt.Token)
+		claims := user.Claims.(jwt.MapClaims)
+		userID := claims["id"].(float64)
+		u.UserID = uint(userID)
+
+		if err := u.Validate(); err != nil {
+			return context.JSON(http.StatusBadRequest, exception.ToJSON(err))
+		}
+
+		var unique string
+		encoder := util.NewEncoder62()
+		if len(u.Suggestion) > 0 {
+			unique = u.Suggestion
+		} else {
+			unique = encoder.Encode(rand.Uint32())
+		}
+
+		// do while
+		var err error
+		for {
+			u.ID = unique
+			err = url.Save(u)
+			if err == nil || err != exception.ResourceAlreadyExists {
+				break
+			}
+			// do generate unique
+			unique, _ = encoder.SimilarSuggestion(unique)
+		}
+
+		if err != nil {
+			return context.JSON(http.StatusInternalServerError, exception.ToJSON(err))
+		}
+		return context.JSON(http.StatusCreated, map[string]string{
+			"shortURL": context.Request().Host + "/" + u.ID,
 		})
 	}
 }
