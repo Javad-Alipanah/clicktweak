@@ -38,7 +38,7 @@ func (u *Url) GetByID(id string) (*model.Url, error) {
 	return result, nil
 }
 
-func (u *Url) GetByUserID(id string) ([]*model.Url, error) {
+func (u *Url) GetByUserID(id uint) ([]*model.Url, error) {
 	var result []*model.Url
 	err := u.db.Table(urlsTable).Where(fmt.Sprintf("%s = ?", userIdCol), id).Find(result).Error
 	if err != nil {

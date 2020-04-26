@@ -10,7 +10,7 @@ type Url interface {
 	GetByID(id string) (*model.Url, error)
 
 	// GetByUserID retrieves urls corresponding to given user ID
-	GetByUserID(userID string) ([]*model.Url, error)
+	GetByUserID(userID uint) ([]*model.Url, error)
 
 	// Save stores given url in database
 	Save(url *model.Url) error
