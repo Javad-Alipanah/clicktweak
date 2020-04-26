@@ -55,7 +55,6 @@ func main() {
 	log.Debugf("seed is: %d", seed)
 	rand.Seed(seed)
 
-	log.Warningln(core.Config.Database.ConnectionString)
 	conn, err := gorm.Open(core.Config.Database.Dialect, core.Config.Database.ConnectionString)
 	if err != nil {
 		log.Fatalln(err)
