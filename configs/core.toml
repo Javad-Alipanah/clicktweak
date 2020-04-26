@@ -1,0 +1,10 @@
+[app]
+listen = ":80"
+secret = "yektanet"
+
+[database]
+connection_string = "user=yekta password=secret host=db port=5432 dbname=test sslmode=disable"
+dialect = "postgres"
+
+[log]
+level = "debug"
