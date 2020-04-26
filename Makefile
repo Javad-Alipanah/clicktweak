@@ -18,7 +18,7 @@ lint:
 
 test:
 	go test -cover ./... -coverprofile .coverage.txt
-	cat .coverage.txt | grep "/pkg\|mode:" > .coverage.pkg
+	cat .coverage.txt | grep "/internal\|mode:" > .coverage.pkg
 	go tool cover -func .coverage.pkg
 
 clean:
