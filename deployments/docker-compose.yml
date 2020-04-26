@@ -16,5 +16,7 @@ services:
     restart: always
     ports:
       - 8080:80
+    volumes:
+      - ../configs/core.toml:/etc/config.toml
     links:
       - db
