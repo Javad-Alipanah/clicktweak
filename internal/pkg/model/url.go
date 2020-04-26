@@ -3,8 +3,8 @@ package model
 import (
 	"clicktweak/internal/pkg/util"
 	"errors"
-	"net/url"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -18,11 +18,13 @@ type Url struct {
 
 // Validate sanitizes given url and suggestion
 func (u *Url) Validate() error {
-	if _, err := url.ParseRequestURI(u.Url); err != nil {
-		if _, err2 := url.ParseRequestURI("http://" + u.Url); err2 != nil {
-			return err
-		}
+	if !strings.HasPrefix(u.Url, "http://") && !strings.HasPrefix(u.Url, "https://") {
 		u.Url = "http://" + u.Url
+	}
+
+	validURL := regexp.MustCompile(`^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$`)
+	if !validURL.MatchString(u.Url) {
+		return errors.New("invalid url")
 	}
 
 	if !regexp.MustCompile(util.DefaultRegex).MatchString(u.Suggestion) {
