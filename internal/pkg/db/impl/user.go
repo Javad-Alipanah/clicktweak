@@ -13,7 +13,6 @@ const (
 	usersTable  = "users"
 	emailCol    = "email"
 	userNameCol = "user_name"
-	passwordCol = "password"
 )
 
 // User implements db.User interface
@@ -64,7 +63,7 @@ func (u *User) Save(user *model.User) error {
 	err := tx.Table(usersTable).Where(fmt.Sprintf("%s = ? OR %s = ?", userNameCol, emailCol), user.UserName, user.Email).First(temp).Error
 	if err == nil {
 		tx.Rollback()
-		return exception.UserAlreadyExists
+		return exception.ResourceAlreadyExists
 	}
 	if !gorm.IsRecordNotFoundError(err) {
 		log.Errorln(err)

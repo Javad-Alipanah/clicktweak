@@ -100,7 +100,7 @@ func SignUp(user db.User, secret string) echo.HandlerFunc {
 			var status int
 			if err == exception.InternalServerError {
 				status = http.StatusInternalServerError
-			} else if err == exception.UserAlreadyExists {
+			} else if err == exception.ResourceAlreadyExists {
 				status = http.StatusConflict
 			}
 			return context.JSON(status, exception.ToJSON(err))
@@ -121,7 +121,7 @@ func generateToken(u *model.User, secret string) (string, error) {
 	// generate JWT
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["user_name"] = u.UserName
+	claims["id"] = u.ID
 	claims["exp"] = time.Now().Add(time.Hour * 24)
 
 	// generate encoded token and send to client
