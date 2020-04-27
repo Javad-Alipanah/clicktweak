@@ -1,10 +1,16 @@
 CORE=bin/core
 STATIC_CORE=bin/core_static
+DISPATCHER=bin/dispatcher
+STATIC_DISPATCHER=bin/dispatcher_static
+CONSUMER=bin/consumer
+STATIC_CONSUMER=bin/consumer_static
+ANALYZER=bin/analyzer
+STATIC_ANALYZER=bin/analyzer_static
 SOURCES=$(shell find . -name '*.go' -not -name '*_test.go')
 
-all: $(CORE)
+all: $(CORE) $(DISPATCHER) $(CONSUMER) $(ANALYZER)
 
-static: $(STATIC_CORE)
+static: $(STATIC_CORE) $(STATIC_DISPATCHER) $(STATIC_CONSUMER) $(STATIC_ANALYZER)
 
 format:
 	find . -name '*.go' -not -path "./.cache/*" | xargs -n1 go fmt

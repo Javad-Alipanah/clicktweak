@@ -61,7 +61,13 @@ deploy:
   script:
     - docker login reg.alipanah.me -u ${REPO_USR} -p ${REPO_PWD}
     - docker build -t reg.alipanah.me/core:${CI_COMMIT_REF_NAME} -f ./build/package/core.Dockerfile .
+    - docker build -t reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME} -f ./build/package/dispatcher.Dockerfile .
+    - docker build -t reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME} -f ./build/package/consumer.Dockerfile .
+    - docker build -t reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME} -f ./build/package/analyzer.Dockerfile .
     - docker push reg.alipanah.me/core:${CI_COMMIT_REF_NAME}
+    - docker push reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME}
+    - docker push reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME}
+    - docker push reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME}
   only:
     - tags
 
