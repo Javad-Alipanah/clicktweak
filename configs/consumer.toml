@@ -1,0 +1,15 @@
+[app]
+batch = 100
+timeout = "10s"
+
+[kafka]
+topic = "test"
+host = "10.5.0.60:19092"
+group = "sampleGroup"
+
+[logdb]
+dialect = "clickhouse"
+connection_string = "tcp://clickhouse:9000?debug=true"
+
+[log]
+level = "debug"
