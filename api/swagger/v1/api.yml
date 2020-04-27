@@ -4,12 +4,252 @@ info:
   title: ClickTweak
   description: This is the documentation for ClickTweak API
 servers:
-  - url: c.t/v1
+  - url: c.t/
+tags:
+  - name: Core
+    description: Application's core service
+  - name: Dispatcher
+    description: Service responsible for redirection and access log generation
+  - name: Analyzer
+    description: Service responsible for analytic retrieval
 paths:
-  /:
-    get:
-      summary: Simple Hello World page
-      operationId: getHelloWorld
+  /signup:
+    post:
+      summary: Signup page for new users
+      operationId: signup
+      tags:
+        - Core
+      requestBody:
+        description: User info and credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+          201:
+            description: Created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token'
+          400:
+            description: Bad Request
+          409:
+            description: Conflict
+          500:
+            description: Internal Server Error
+  /login:
+    post:
+      summary: Login page
+      operationId: login
+      tags:
+        - Core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CredentialsWithEmail'
+                - $ref: '#/components/schemas/CredentialsWithUserName'
       responses:
           200:
             description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token'
+          400:
+            description: Malformed Input
+          401:
+            description: Unauthorized
+          500:
+            description: Internal Server Error
+  /shorten:
+    post:
+      summary: Shorten url
+      operationId: shorten
+      tags:
+        - Core
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Url'
+      responses:
+        201:
+          description: Created
+        400:
+          description: Malformed Input
+        401:
+          description: Unauthorized
+        500:
+          description: Internal Server Error
+  /:id:
+    get:
+      summary: Shortened URL which will automatically redirect to original URL
+      operationId: redirect
+      tags:
+        - Dispatcher
+      responses:
+        301:
+          description: Moved Permanently
+        400:
+          description: Malformed Input
+        404:
+          description: Resource Not Found
+        500:
+          description: Internal Server Error
+  /stats:
+    get:
+      summary: Stats of all shortened urls belonging to user
+      operationId: stats
+      security:
+        - bearerAuth: []
+      tags:
+        - Analyzer
+      parameters:
+        - in: query
+          name: from
+          schema:
+            description: Time reference for generating report
+            type: string
+            enum: [today, yesterday, lastweek, lastmonth]
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        400:
+          description: Malformed Input
+        401:
+          description: Unauthorized
+        404:
+          description: Resource Not Found
+        500:
+          description: Internal Server Error
+
+components:
+  schemas:
+    User:
+      title: User info and credentials
+      type: object
+      properties:
+        email:
+          type: string
+          example: "javadalipanah@gmail.com"
+        user_name:
+          minLength: 4
+          type: string
+          example: "javad"
+        password:
+          minLength: 8
+          type: string
+          example: "gotcha!!"
+    CredentialsWithEmail:
+      title: User credentials
+      type: object
+      properties:
+        email:
+          type: string
+          example: "javadalipanah@gmail.com"
+        password:
+          type: string
+          example: "gotcha!!"
+    CredentialsWithUserName:
+      title: User credentials
+      type: object
+      properties:
+        user_name:
+          type: string
+          example: "javad"
+        password:
+          type: string
+          example: "gotcha!!"
+    Url:
+      title: URL resource
+      type: object
+      properties:
+        url:
+          type: string
+          example: "alipanah.me"
+        suggestion:
+          maxLength: 7
+          type: string
+          example: "javad"
+    Token:
+      title: JWT Token
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDIwLTA0LTI3VDE3OjE1OjQyLjMwNzM4NDY5NVoiLCJpZCI6MX0.baPIQDbL7a6U8OF2_l9b7SUD3BlHW6Cv72usQAm6lPo"
+    Report:
+      title: Analytics report
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: The shortened URL ID (the part after slash)
+            type: string
+            example: "SxJaBSl"
+          clicks:
+            description: Stats based on clicks
+            type: object
+            properties:
+              total:
+                description: Total number of clicks on this link
+                type: integer
+                example: 1003
+              per_browser:
+                description: Total number of clicks on this link concerning browser name
+                type: object
+                example:
+                  chrome: 1
+                  firefox: 2
+                  curl: 1000
+              per_device:
+                description: Total number of clicks on this link concerning mobile/desktop
+                type: object
+                properties:
+                  desktop:
+                    description: Number of clicks originating from desktop device
+                    type: integer
+                    example: 300
+                  mobile:
+                    description: Number of clicks originating from mobile device
+                    type: integer
+                    example: 703
+          visitors:
+            description: Stats based on user IP
+            type: object
+            properties:
+              total:
+                description: Total number of distinct visitores of this link
+                type: integer
+                example: 10
+              per_browser:
+                description: Total number of distinct visitores of this link concerning browser name
+                type: object
+                example:
+                  chrome: 1
+                  firefox: 2
+                  curl: 7
+              per_device:
+                description: Total number of distinct visitores of this link concerning mobile/desktop
+                type: object
+                properties:
+                  desktop:
+                    description: Number of distinct visitores using desktop device
+                    type: integer
+                    example: 3
+                  mobile:
+                    description: Number of distinct visitores using mobile device
+                    type: integer
+                    example: 7
