@@ -87,5 +87,6 @@ func main() {
 
 	e := echo.New()
 	e.GET("/stats", analyzer.GetStats(urlDB, logDB), middleware.JWT([]byte(analyzer.Config.App.Secret)))
+	e.GET("/stats/:id", analyzer.GetUrlStats(urlDB, logDB), middleware.JWT([]byte(analyzer.Config.App.Secret)))
 	e.Logger.Fatal(e.Start(analyzer.Config.App.Listen))
 }

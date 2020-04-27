@@ -16,6 +16,7 @@ require (
 	github.com/mssola/user_agent v0.5.2
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
+	github.com/pkg/errors v0.8.0
 	github.com/segmentio/kafka-go v0.3.5
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/viper v1.6.3

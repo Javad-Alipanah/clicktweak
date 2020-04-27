@@ -124,6 +124,37 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Reports'
+        400:
+          description: Malformed Input
+        401:
+          description: Unauthorized
+        404:
+          description: Resource Not Found
+        500:
+          description: Internal Server Error
+  /stats/:id:
+    get:
+      summary: Stats of one shortened url specified by id belonging to user
+      operationId: stat
+      security:
+        - bearerAuth: []
+      tags:
+        - Analyzer
+      parameters:
+        - in: query
+          name: from
+          schema:
+            description: Time reference for generating report
+            type: string
+            enum: [today, yesterday, lastweek, lastmonth]
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/Report'
         400:
           description: Malformed Input
@@ -191,65 +222,68 @@ components:
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDIwLTA0LTI3VDE3OjE1OjQyLjMwNzM4NDY5NVoiLCJpZCI6MX0.baPIQDbL7a6U8OF2_l9b7SUD3BlHW6Cv72usQAm6lPo"
     Report:
       title: Analytics report
+      type: object
+      properties:
+        id:
+          description: The shortened URL ID (the part after slash)
+          type: string
+          example: "SxJaBSl"
+        clicks:
+          description: Stats based on clicks
+          type: object
+          properties:
+            total:
+              description: Total number of clicks on this link
+              type: integer
+              example: 1003
+            per_browser:
+              description: Total number of clicks on this link concerning browser name
+              type: object
+              example:
+                chrome: 1
+                firefox: 2
+                curl: 1000
+            per_device:
+              description: Total number of clicks on this link concerning mobile/desktop
+              type: object
+              properties:
+                desktop:
+                  description: Number of clicks originating from desktop device
+                  type: integer
+                  example: 300
+                mobile:
+                  description: Number of clicks originating from mobile device
+                  type: integer
+                  example: 703
+        visitors:
+          description: Stats based on user IP
+          type: object
+          properties:
+            total:
+              description: Total number of distinct visitores of this link
+              type: integer
+              example: 10
+            per_browser:
+              description: Total number of distinct visitores of this link concerning browser name
+              type: object
+              example:
+                chrome: 1
+                firefox: 2
+                curl: 7
+            per_device:
+              description: Total number of distinct visitores of this link concerning mobile/desktop
+              type: object
+              properties:
+                desktop:
+                  description: Number of distinct visitores using desktop device
+                  type: integer
+                  example: 3
+                mobile:
+                  description: Number of distinct visitores using mobile device
+                  type: integer
+                  example: 7
+    Reports:
+      title: Analytics report
       type: array
       items:
-        type: object
-        properties:
-          id:
-            description: The shortened URL ID (the part after slash)
-            type: string
-            example: "SxJaBSl"
-          clicks:
-            description: Stats based on clicks
-            type: object
-            properties:
-              total:
-                description: Total number of clicks on this link
-                type: integer
-                example: 1003
-              per_browser:
-                description: Total number of clicks on this link concerning browser name
-                type: object
-                example:
-                  chrome: 1
-                  firefox: 2
-                  curl: 1000
-              per_device:
-                description: Total number of clicks on this link concerning mobile/desktop
-                type: object
-                properties:
-                  desktop:
-                    description: Number of clicks originating from desktop device
-                    type: integer
-                    example: 300
-                  mobile:
-                    description: Number of clicks originating from mobile device
-                    type: integer
-                    example: 703
-          visitors:
-            description: Stats based on user IP
-            type: object
-            properties:
-              total:
-                description: Total number of distinct visitores of this link
-                type: integer
-                example: 10
-              per_browser:
-                description: Total number of distinct visitores of this link concerning browser name
-                type: object
-                example:
-                  chrome: 1
-                  firefox: 2
-                  curl: 7
-              per_device:
-                description: Total number of distinct visitores of this link concerning mobile/desktop
-                type: object
-                properties:
-                  desktop:
-                    description: Number of distinct visitores using desktop device
-                    type: integer
-                    example: 3
-                  mobile:
-                    description: Number of distinct visitores using mobile device
-                    type: integer
-                    example: 7
+        $ref: '#/components/schemas/Report'
