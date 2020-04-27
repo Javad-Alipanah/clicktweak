@@ -3,6 +3,8 @@ package dispatcher
 import (
 	"net/http"
 	"regexp"
+	"strings"
+	"time"
 
 	"clicktweak/internal/pkg/db"
 	exception "clicktweak/internal/pkg/error"
@@ -36,11 +38,11 @@ func Redirect(url db.Url, logs chan<- model.Log) echo.HandlerFunc {
 			device = "desktop"
 		}
 		elem := model.Log{
-			Id:      result.ID,
-			Url:     result.Url,
-			Browser: browser,
-			Device:  device,
-			RemoteAddr: context.Request().RemoteAddr,
+			Id:         result.ID,
+			Browser:    browser,
+			Device:     device,
+			RemoteAddr: strings.Split(context.Request().RemoteAddr, ":")[0],
+			CreatedAt:  time.Now().Format(time.RFC3339),
 		}
 		logs <- elem
 
