@@ -39,8 +39,8 @@ func (u *Url) GetByID(id string) (*model.Url, error) {
 }
 
 func (u *Url) GetByUserID(id uint) ([]*model.Url, error) {
-	var result []*model.Url
-	err := u.db.Table(urlsTable).Where(fmt.Sprintf("%s = ?", userIdCol), id).Find(result).Error
+	var result []*model.Url = make([]*model.Url, 0)
+	err := u.db.Table(urlsTable).Where(fmt.Sprintf("%s = ?", userIdCol), id).Find(&result).Error
 	if err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			log.Error(err)
