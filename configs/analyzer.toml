@@ -1,0 +1,14 @@
+[app]
+listen = ":80"
+secret = "yektanet"
+
+[database]
+connection_string = "user=yekta password=secret host=db port=5432 dbname=test sslmode=disable"
+dialect = "postgres"
+
+[logdb]
+dialect = "clickhouse"
+connection_string = "tcp://clickhouse:9000?debug=true"
+
+[log]
+level = "debug"
