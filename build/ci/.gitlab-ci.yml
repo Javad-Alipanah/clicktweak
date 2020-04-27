@@ -49,27 +49,27 @@ build:
     paths:
       - .cache
 
-deploy:
-  image: docker:latest
-  stage: deploy
-  dependencies:
-    - build
-  before_script:
-    - apk update
-    - apk add ca-certificates
-    - cp /etc/ssl/certs/ca-certificates.crt .
-  script:
-    - docker login reg.alipanah.me -u ${REPO_USR} -p ${REPO_PWD}
-    - docker build -t reg.alipanah.me/core:${CI_COMMIT_REF_NAME} -f ./build/package/core.Dockerfile .
-    - docker build -t reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME} -f ./build/package/dispatcher.Dockerfile .
-    - docker build -t reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME} -f ./build/package/consumer.Dockerfile .
-    - docker build -t reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME} -f ./build/package/analyzer.Dockerfile .
-    - docker push reg.alipanah.me/core:${CI_COMMIT_REF_NAME}
-    - docker push reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME}
-    - docker push reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME}
-    - docker push reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME}
-  only:
-    - tags
+#deploy:
+#  image: docker:latest
+#  stage: deploy
+#  dependencies:
+#    - build
+#  before_script:
+#    - apk update
+#    - apk add ca-certificates
+#    - cp /etc/ssl/certs/ca-certificates.crt .
+#  script:
+#    - docker login reg.alipanah.me -u ${REPO_USR} -p ${REPO_PWD}
+#    - docker build -t reg.alipanah.me/core:${CI_COMMIT_REF_NAME} -f ./build/package/core.Dockerfile .
+#    - docker build -t reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME} -f ./build/package/dispatcher.Dockerfile .
+#    - docker build -t reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME} -f ./build/package/consumer.Dockerfile .
+#    - docker build -t reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME} -f ./build/package/analyzer.Dockerfile .
+#    - docker push reg.alipanah.me/core:${CI_COMMIT_REF_NAME}
+#    - docker push reg.alipanah.me/dispatcher:${CI_COMMIT_REF_NAME}
+#    - docker push reg.alipanah.me/consumer:${CI_COMMIT_REF_NAME}
+#    - docker push reg.alipanah.me/analyzer:${CI_COMMIT_REF_NAME}
+#  only:
+#    - tags
 
 pages:
   image: node:alpine
