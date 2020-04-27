@@ -9,7 +9,7 @@ group = "sampleGroup"
 
 [logdb]
 dialect = "clickhouse"
-connection_string = "tcp://clickhouse:9000?debug=true"
+connection_string = "tcp://clickhouse:9000?debug=false"
 
 [log]
-level = "debug"
+level = "warning"
