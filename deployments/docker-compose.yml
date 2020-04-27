@@ -1,5 +1,6 @@
 version: '3'
 services:
+# Postgres database for persisting users and urls
   db:
     image: postgres
     hostname: db
@@ -12,8 +13,9 @@ services:
     networks:
       intranet:
         ipv4_address: 10.5.0.10
+# clicktweak core service
   core:
-    image: core
+    image: reg.alipanah.me/core
     hostname: core
     container_name: core
     restart: always
@@ -26,8 +28,9 @@ services:
         ipv4_address: 10.5.0.20
     depends_on:
       - db
+# clicktweak service for redirection and access log generation
   dispatcher:
-    image: dispatcher
+    image: reg.alipanah.me/dispatcher
     hostname: dispatcher
     container_name: dispatcher
     restart: always
@@ -41,8 +44,9 @@ services:
     depends_on:
       - forwarder
       - db
+# clicktweak service for consumption of kafka events and pushing to clickhouse
   consumer:
-    image: consumer
+    image: reg.alipanah.me/consumer
     hostname: consumer
     container_name: consumer
     restart: always
@@ -55,8 +59,9 @@ services:
       - forwarder
       - clickhouse
       - kafka
+# clicktweak service responsible for report generation
   analyzer:
-    image: analyzer
+    image: reg.alipanah.me/analyzer
     hostname: analyzer
     container_name: analyzer
     restart: always
@@ -71,6 +76,7 @@ services:
       - db
       - clickhouse
       - consumer
+# fluent-bit log forwarder which forwards access log to kafka
   forwarder:
     image: fluent/fluent-bit:1.3
     hostname: forwarder
@@ -88,6 +94,7 @@ services:
         ipv4_address: 10.5.0.40
     depends_on:
       - kafka
+# zoo kafka manager
   zoo:
     image: zookeeper:3.4.9
     hostname: zoo
@@ -104,6 +111,7 @@ services:
     networks:
       intranet:
         ipv4_address: 10.5.0.50
+# kafka instance
   kafka:
     image: confluentinc/cp-kafka:5.5.0
     hostname: kafka
@@ -127,6 +135,7 @@ services:
         ipv4_address: 10.5.0.60
     depends_on:
       - zoo
+# clickhouse for log aggregation
   clickhouse:
     image: yandex/clickhouse-server
     hostname: clickhouse
@@ -139,6 +148,7 @@ services:
       intranet:
         ipv4_address: 10.5.0.70
 
+# bridge network among services
 networks:
   intranet:
     driver: bridge
