@@ -109,7 +109,6 @@ func (l *Log) GetStats(id, from, until string) (*model.Report, error) {
 		for rows.Next() {
 			val = append(val, map[string]interface{}{})
 			err = rows.MapScan(val[i])
-			log.Warnf("%v\n", val[i])
 			i++
 		}
 
