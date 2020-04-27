@@ -125,6 +125,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=WARN,kafka.producer.async.DefaultEventHandler=WARN,state.change.logger=WARN"
+      KAFKA_LOG4J_ROOT_LOGLEVEL: "WARN"
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: "ERROR"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - ./zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
